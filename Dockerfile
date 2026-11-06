@@ -1,12 +1,20 @@
-FROM alpine:latest
+FROM python:3.10-slim
 
-RUN apk update && apk upgrade
-RUN apk add --no-cache gcc python3-dev musl-dev linux-headers git py3-pip ffmpeg
-RUN apk add --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing/ megatools
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    python3-dev \
+    git \
+    ffmpeg \
+    megatools \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app/
 COPY . .
+
+# Create virtual environment and install requirements
 RUN python3 -m venv venv
+RUN venv/bin/pip install -U pip
 RUN venv/bin/pip install -U -r requirements.txt
 
 CMD ["venv/bin/python3", "-m", "megadl"]
